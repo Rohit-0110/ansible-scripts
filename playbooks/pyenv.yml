@@ -1,0 +1,78 @@
+- name: pyenv setup
+  hosts: localhost
+  become: true
+  tasks:
+    - block:
+        - name: update apt cache
+          apt: 
+            update_cache: yes
+
+        # Install Dependencies
+        - name: Install required packages (Ubuntu)
+          apt:
+            name: "{{ item }}"
+            state: present
+          with_items:
+            - git
+            - curl
+            - make
+            - build-essential
+            - libssl-dev
+            - zlib1g-dev
+            - libbz2-dev
+            - libreadline-dev
+            - libsqlite3-dev
+            - llvm
+            - libncurses5-dev
+            - libncursesw5-dev
+            - xz-utils
+            - tk-dev
+            - libffi-dev
+            - liblzma-dev
+      
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    # Install Dependencies
+    - name: Install required packages (Centos)
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - git
+        - gcc
+        - zlib-devel
+        - bzip2
+        - bzip2-devel
+        - readline-devel
+        - sqlite
+        - sqlite-devel
+        - openssl-devel
+        - tk-devel
+        - libffi-devel
+      when: ansible_facts['distribution'] == "Centos"
+
+    # Destination directory exists
+    - name: Destination directory
+      file:
+        path: /usr/local/pyenv
+        state: directory
+
+    # clone pyenv repository
+    - name: clone repository
+      git:
+        repo: https://github.com/pyenv/pyenv.git
+        dest: /usr/local/pyenv
+        version: master
+
+    # set pyenv environment
+    - name: set environment
+      lineinfile:
+        path: /etc/profile
+        line: |
+          export PYENV_ROOT="/usr/local/pyenv"
+          export PATH="$PYENV_ROOT/bin:$PATH"
+          eval "$(pyenv init -)"
+
+    # source /etc/profile
+    - name: source
+      command: bash -c 'source /etc/profile'     

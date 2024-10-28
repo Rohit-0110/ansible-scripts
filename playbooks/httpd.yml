@@ -1,0 +1,73 @@
+- name: httpd
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Install httpd package
+    yum: name=httpd state=installed
+
+
+  - name: Start httpd service
+    service:
+      name: httpd
+      state: started
+      enabled: true
+
+---
+
+- name: Install httpd
+  hosts: all
+  any_errors_fatal: true  # if any error occure will stop the playbook
+  gather_facts: false
+  tasks:
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+
+    - name: start service
+      service:
+        name: httpd
+        state: started
+
+---
+
+- name: Install httpd
+  hosts: web1
+  strategy: free      # strategy free
+  gather_facts: false
+  tasks:
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+    - name: Check httpd error logs
+      command: cat /var/log/httpd/error_log
+      register: results
+
+    - name: start service
+      service:
+        name: httpd
+        state: started
+      failed_when: '"Error" in results.stdout'
+
+    - name: Create a file
+      file:
+        path: /tmp/file
+        state: touch
+
+---
+
+- name: Install httpd
+  hosts: all
+  serial: 1         # single 
+  gather_facts: false
+  tasks:
+    - name: Install htpd
+      yum:
+        name: httpd
+        state: present
+
+    - name: start service
+      service:
+        name: httpd
+        state: started

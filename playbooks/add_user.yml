@@ -1,0 +1,6 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - user:
+        name: 'testuser'
+        expires: 1704067199 # 3 year expire

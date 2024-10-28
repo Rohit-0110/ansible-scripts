@@ -1,0 +1,87 @@
+; key create
+; ssh-keygen -f /home/thor/.ssh/john
+; distribute ssh key
+; ssh-copy-id -i john.pub john@lamp-web
+
+; asking password sudo access 
+; ansible-playbook -i inventory playbook.yml --ask-become-pass
+
+; ubuntu ansible_host=192.168.56.146 ansible_user=username ansible_ssh_private_key_file=/path/to/your/private/key
+web1 ansible_host=172.20.1.100 ansible_user=ansible ansible_ssh_private_key_file=/home/username/.ssh/ansible
+web_node1 ansible_host=web01.xyz.com ansible_connection=winrm ansible_user=administrator ansible_password=Win$Pass
+web_node2 ansible_host=web02.xyz.com ansible_connection=winrm ansible_user=administrator ansible_password=Win$Pass
+web_node3 ansible_host=web03.xyz.com ansible_connection=winrm ansible_user=administrator ansible_password=Win$Pass
+sql_db1 ansible_host=sql01.xyz.com ansible_connection=ssh ansible_user=root ansible_ssh_pass=Lin$Pass
+sql_db2 ansible_host=sql02.xyz.com ansible_connection=ssh ansible_user=root ansible_ssh_pass=Lin$Pass
+
+[localhost]
+127.0.0.1 ansible_connection=local ansible_become_pass=target
+
+#Groups
+[db_nodes]
+sql_db1
+sql_db2
+
+[web_nodes]
+web_node1
+web_node2
+web_node3
+
+[boston_nodes]
+sql_db1
+web_node1
+
+[dallas_nodes]
+sql_db2
+web_node2
+web_node3
+
+[us_nodes:children]
+boston_nodes
+dallas_nodes
+
+[db_servers]
+lamp-db ansible_host=172.20.1.101 ansible_ssh_pass=maria ansible_user=maria
+
+[web_servers]
+lamp-web ansible_host=172.20.1.100 ansible_ssh_private_key_file=~/.ssh/john ansible_user=john
+
+[db_servers]
+lamp-db ansible_host=172.20.1.101 ansible_user=maria mysqlservice=mysqld mysql_port=3306 dbname=ecomdb dbuser=ecomuser dbpassword=ecompassword
+
+[web_servers]
+lamp-web ansible_host=172.20.1.100 ansible_user=john httpd_port=80 repository=https://github.com/kodekloudhub/learning-app-ecommerce.git
+
+node00.host ansible_host=172.20.1.100 ansible_ssh_pass=Passw0rd ansible_user=root
+node01.host ansible_host=172.20.1.101 ansible_ssh_pass=Passw0rd ansible_user=root dns_server=8.8.8.8
+
+
+
+
+; OR you can store the variables as group 
+; [web_nodes:vars]
+; httpd_port=80 
+; repository=https://github.com/kodekloudhub/learning-app-ecommerce.git
+
+; [db_nodes:vars]
+; mysqlservice=mysqld
+; mysql_port=3306
+; dbname=ecomdb
+; dbuser=ecomuser
+; dbpassword=ecompassword
+
+
+; create role
+; ansible-galaxy init roles/ansible-role-firewalld
+
+; vault ansible
+; ansible-vault decrypt /home/thor/playbooks/decrypt_me.yml --vault-password-file vault_pass.txt
+
+
+; ansible.cfg
+; [defaults]
+; host_key_checking = False
+; vault_password_file = /home/thor/playbooks/vault_pass.txt
+
+
+; ansible all -m ping -i inventory

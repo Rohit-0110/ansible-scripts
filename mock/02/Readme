@@ -1,0 +1,1 @@
+ansible-playbook -i inventory copy_secrets.yml --vault-password-file get_vault_pass.txt

@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Install unzip package
+      yum:
+        name: unzip-5.52
+        state: present

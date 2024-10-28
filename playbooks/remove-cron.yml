@@ -1,0 +1,7 @@
+- name: remove cron job from node00
+  hosts: node00
+  tasks:
+  - name: Remove cron job
+    cron:
+      name: "Check Memory"
+      state: absent

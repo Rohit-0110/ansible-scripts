@@ -1,0 +1,4 @@
+hostname, architecture, distribution_version, mem_total_mb, processor_cores, processor_count
+db0001, x86_64, 7.6.1810, 3023, 2, 1
+host0002, x86_64, 7.6.1810, 3023, 2, 1
+host0003, x86_64, 7.6.1810, 3023, 2, 1

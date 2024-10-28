@@ -1,0 +1,79 @@
+- hosts: localhost
+  become: true
+  tasks:
+
+    - block:
+        - apt: name=gnome-terminal state=present
+        - apt: name=docker-desktop state=absent
+
+        # Set up Docker apt repository
+        - name: Install required packages
+          apt:
+            name:
+              - apt-transport-https
+              - ca-certificates
+              - curl
+              - software-properties-common
+              - gnupg
+            state: present
+
+        - name: Create keyrings directory
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: '0755'
+
+        - name: Add Docker GPG key
+          # '>' is used for execution
+          shell: >
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+        - name: Set permissions on Docker GPG key
+          command: "sudo chmod a+r /etc/apt/keyrings/docker.gpg"
+
+        - name: Add the repository to apt sources
+          shell: >
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+        - name: update apt cache
+          apt:
+            update_cache: yes
+      
+        # Installing Docker  
+        - name: Install docker
+          apt:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+      
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - block:
+        - yum: name=yum-utils state=present
+          
+        # Add the repository
+        - name: Add the repository
+          shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+        - yum: update_cache=yes
+
+        # Install Docker 
+        - name: Install docker
+          yum:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+        
+        # start Docker service
+        - service: name=docker state=started enabled=true
+
+      when: ansible_facts['distribution'] == "Centos"
+      

@@ -1,0 +1,29 @@
+- name: Upgrade Ubuntu
+  hosts: all
+  become: true
+  tasks:
+    - name: Add content
+      lineinfile:
+        path: /usr/lib/python3/dist-packages/UpdateManager/Core/MetaRelease.py
+        line: "{{ item }}"
+      with_items:
+        - 'import ssl'
+        - 'ssl._create_default_https_context = ssl._create_unverified_context'
+
+    - name: Add a line to the release-upgrades file
+      lineinfile:
+        path: /etc/update-manager/release-upgrades
+        regexp: Prompt=lts
+        line: 'Prompt=normal'
+
+    - name: update packages cache
+      apt:
+        update_cache: yes
+
+    - name: upgrade all packages
+      apt:
+        upgrade: yes
+        autoremove: yes
+
+    - name: Upgrade Ubuntu with do-release-upgrade
+      shell: do-release-upgrade -f DistUpgradeViewNonInteractive

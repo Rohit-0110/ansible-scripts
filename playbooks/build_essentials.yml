@@ -1,0 +1,55 @@
+- name: Install GCC, G++, and GFortran version 13
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure apt cache is updated
+      apt:
+        update_cache: yes
+
+    - name: Add the Ubuntu Toolchain PPA
+      apt_repository:
+        repo: ppa:ubuntu-toolchain-r/test
+        state: present
+
+    - name: Install gcc-13, g++-13, and gfortran-13
+      apt:
+        name:
+          - build-essential
+          - gcc-13
+          - g++-13
+          - gfortran-13
+        state: present
+
+    - name: Set gcc-13 as the default gcc
+      command: update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 60
+
+    - name: Set g++-13 as the default g++
+      command: update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 60
+
+    - name: Set gfortran-13 as the default gfortran
+      command: update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-13 60
+
+    - name: Verify GCC version
+      command: gcc --version
+      register: gcc_version
+
+    - name: Print GCC version
+      debug:
+        msg: "GCC version: {{ gcc_version.stdout }}"
+
+    - name: Verify G++ version
+      command: g++ --version
+      register: gpp_version
+
+    - name: Print G++ version
+      debug:
+        msg: "G++ version: {{ gpp_version.stdout }}"
+
+    - name: Verify GFortran version
+      command: gfortran --version
+      register: gfortran_version
+
+    - name: Print GFortran version
+      debug:
+        msg: "GFortran version: {{ gfortran_version.stdout }}"
+        

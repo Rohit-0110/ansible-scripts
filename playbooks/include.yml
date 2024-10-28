@@ -1,0 +1,7 @@
+- name: Print DB server data
+  hosts: all
+  gather_facts: false
+  tasks:
+    - include_vars: ~/playbooks/general/common/db/db.yml
+    - debug:
+        var: db_version
